@@ -89,17 +89,43 @@ def main():
             valid_moves = gs.get_legal_moves()
             move_made = False
 
-        draw_game_state(screen, gs) #Responsible for all graphics within current game state.
+        draw_game_state(screen, gs, valid_moves, selected_sq) #Responsible for all graphics within current game state.
         clock.tick(MAX_FPS) #sets tick rate to max_fps
         p.display.flip() #updates display
+
+
+
+'''
+Highlight selected square and moves for selected piece
+'''
+
+def highlight_squares(screen, gs, valid_moves, selected_sq):
+    if selected_sq != ():
+        r, c = selected_sq
+        if gs.board[r][c][0] == ('w' if gs.white_to_move else 'b'): #makes sure player is selecting their own piece
+            #highligh selected square
+            s = p.Surface((SQ_SIZE, SQ_SIZE))
+            s.set_alpha(100) #transparncy value 0 = opaque | 255 = solid
+            s.fill(p.Color('blue'))
+            screen.blit(s,(c*SQ_SIZE, r*SQ_SIZE))
+            #highlight legal moves
+            s.fill(p.Color('black'))
+            for move in valid_moves:
+                if move.start_row == r and move.start_column == c:
+                    screen.blit(s, (move.end_column*SQ_SIZE, move.end_row*SQ_SIZE))
+
+
+
+
+
 
 '''
 Responsible for all graphics within current game state.
 '''
 
-def draw_game_state(screen, gs): #draws game state on screen
+def draw_game_state(screen, gs, valid_moves, selected_sq): #draws game state on screen
     draw_board(screen) #draws squares on board
-    #add piece highlighting or suggestions functions here
+    highlight_squares(screen, gs, valid_moves, selected_sq)
     draw_pieces(screen, gs.board) #draws pieces on board
 
 
@@ -115,9 +141,9 @@ def draw_board(screen):
 
         for column in range(DIMENSION):
             if is_white:
-                color = (212,224,229) #0-255 R,G,B use color picker to find desired color
+                color = (239,239,239) #0-255 R,G,B use color picker to find desired color
             else: #blue
-                color = (121, 156, 177)
+                color = (136,119,183)
 
             tile = p.Rect(SQ_SIZE*column, SQ_SIZE*row, SQ_SIZE, SQ_SIZE) #creates rectangle object needed to draw tlies in screen (x, y, width, height)                                  
             p.draw.rect(screen, color, tile) #draws tile on screen using global screen variable, color variable, and rectangle object
