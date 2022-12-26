@@ -12,8 +12,8 @@ class GameState():
         ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
         ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
         ["--", "--", "--", "--", "--", "--", "--", "--"],
-        ["--", "--", "--", "--", "--", "--", "--", "bQ"],
-        ["--", "--", "wR", "--", "--", "--", "--", "--"],
+        ["--", "--", "--", "--", "--", "wQ", "wN", "--"],
+        ["--", "--", "--", "--", "--", "--", "--", "--"],
         ["--", "--", "--", "--", "--", "--", "--", "--"],
         ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
         ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
@@ -23,8 +23,8 @@ class GameState():
         self.move_log = []
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
-        self.check_mate = False
-        self.stale_mate = False
+        self.checkmate = False
+        self.stalemate = False
         self.enpassant_possible = () #coordinates to square where en-passant is possible 
         self.current_castling_rights = Castle_Rights(True, True, True, True)
         self.castle_rights_log = [Castle_Rights(self.current_castling_rights.wks, self.current_castling_rights.bks, 
@@ -90,8 +90,8 @@ class GameState():
                 self.white_king_location = ( move.start_row,  move.start_column)
             elif move.piece_moved == 'bK':
                 self.black_king_location = ( move.start_row,  move.start_column)
-        self.check_mate = False #updating values incase player undos a checkmate or stalemate
-        self.stale_mate = False
+        self.checkmate = False #updating values incase player undos a checkmate or stalemate
+        self.stalemate = False
         #undo enpassant
         if move.is_enpassant:
             self.board[move.end_row][move.end_column] = '--'
@@ -174,9 +174,9 @@ class GameState():
         
         if len(moves) == 0: #either stalemate or checkmate
             if self.in_check:
-                self.check_mate = True
+                self.checkmate = True
             else:
-                self.stale_mate = True
+                self.stalemate = True
 
         self.enpassant_possible = temp_enpassant_possible #reaplying enpassant moves
         self.current_castling_rights = temp_castle_rights
