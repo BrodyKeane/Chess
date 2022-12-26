@@ -12,8 +12,8 @@ class GameState():
         ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
         ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
         ["--", "--", "--", "--", "--", "--", "--", "--"],
-        ["--", "--", "--", "--", "--", "--", "--", "--"],
-        ["--", "--", "--", "--", "--", "--", "--", "--"],
+        ["--", "--", "--", "--", "--", "--", "--", "bQ"],
+        ["--", "--", "wR", "--", "--", "--", "--", "--"],
         ["--", "--", "--", "--", "--", "--", "--", "--"],
         ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
         ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
@@ -343,15 +343,15 @@ class GameState():
     Generate all valid castle moves for king at row, column
     '''
     def get_castle_moves(self, row, column, moves):
-        print('line 347')
+        
         if self.square_under_attack(row, column):
-            print('line 349')
+            
             return #cant castle while in check
         if (self.white_to_move and self.current_castling_rights.wks) or (not self.white_to_move and self.current_castling_rights.bks):
-            print('move added 352')
+            
             self.get_king_side_castle_moves(row, column, moves)
         if (self.white_to_move and self.current_castling_rights.wqs) or (not self.white_to_move and self.current_castling_rights.bqs):
-            print('move added 355')
+            
             self.get_queen_side_castle_moves(row, column, moves)
 
     def get_king_side_castle_moves(self, row, column, moves):

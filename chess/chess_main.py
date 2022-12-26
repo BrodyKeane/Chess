@@ -44,6 +44,7 @@ def main():
     gs = chess_engine.GameState()   #assigns GameState object to gs including a 2d list representing the board
     valid_moves = gs.get_legal_moves() #holds all legal moves to compare with player move
     move_made = False #flag variable for when move is made so you dont have to generate all possible moves every tick
+    animate = False #flag for piece animation
     load_images()  #only call once
     running = True
     
@@ -74,6 +75,7 @@ def main():
                         if move == valid_moves[i]:  # and uses engine move that contains more information
                             gs.make_move(valid_moves[i])
                             move_made = True
+                            animate = True
                             selected_sq = () #resets player clicks after move
                             player_clicks = []
                     if not move_made: #invalid move keeps second click selected
@@ -84,10 +86,22 @@ def main():
                 if e.key == p.K_LEFT:
                     gs.undo_move()
                     move_made = True
+                    animate = False
+
+                if e.key == p.K_r: #r key resets the game
+                    gs = chess_engine.GameState()
+                    valid_moves = gs.get_legal_moves()
+                    selected_sq = ()
+                    player_clicks = []
+                    move_made = False
+                    animate = False
 
         if move_made:
+            if animate:
+                animate_move(gs.move_log[-1], screen, gs.board, clock)
             valid_moves = gs.get_legal_moves()
             move_made = False
+            animate = False
 
         draw_game_state(screen, gs, valid_moves, selected_sq) #Responsible for all graphics within current game state.
         clock.tick(MAX_FPS) #sets tick rate to max_fps
@@ -135,15 +149,16 @@ Draws squares on board
 '''
 def draw_board(screen):
     is_white = False
-
+    global colors #white         purple
+    colors = [(239,239,239), (136,119,183)]
     for row in range(DIMENSION):
         is_white = not is_white #alternates starting color for each row
 
         for column in range(DIMENSION):
             if is_white:
-                color = (239,239,239) #0-255 R,G,B use color picker to find desired color
-            else: #blue
-                color = (136,119,183)
+                color = colors[0] #0-255 R,G,B use color picker to find desired color
+            else: #purple
+                color = colors[1]
 
             tile = p.Rect(SQ_SIZE*column, SQ_SIZE*row, SQ_SIZE, SQ_SIZE) #creates rectangle object needed to draw tlies in screen (x, y, width, height)                                  
             p.draw.rect(screen, color, tile) #draws tile on screen using global screen variable, color variable, and rectangle object
@@ -163,6 +178,38 @@ def draw_pieces(screen, board):
                 screen.blit(IMAGES[piece], p.Rect(SQ_SIZE*column, SQ_SIZE*row, SQ_SIZE, SQ_SIZE))
 
     
+
+'''
+Animating moves
+'''
+
+def animate_move(move, screen, board, clock):
+    global colors
+    delta_row = move.end_row - move.start_row
+    delta_column = move.end_column  - move.start_column
+    frames_per_square = 3
+    frame_count = (abs(delta_row) + abs(delta_column)) * frames_per_square
+    for frame in range(frame_count + 1): #takes starting position and current frame/total frames to calculate position
+        row = move.start_row + delta_row*frame/frame_count
+        column = move.start_column + delta_column*frame/frame_count
+        draw_board(screen)
+        draw_pieces(screen, board)
+        #erase piece moved from ending square
+        color = colors[(move.end_row + move.end_column) % 2]
+        end_square = p.Rect(move.end_column*SQ_SIZE, move.end_row*SQ_SIZE, SQ_SIZE, SQ_SIZE)
+        p.draw.rect(screen, color, end_square)
+        #redraw captured piece
+        if move.piece_captured != '--':
+            screen.blit(IMAGES[move.piece_captured], end_square)
+        #draw moving piece
+        screen.blit(IMAGES[move.piece_moved], p.Rect(column*SQ_SIZE, row*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+        p.display.flip()
+        clock.tick(60)
+
+
+
+
+
 
 if __name__ == '__main__':
     main()
